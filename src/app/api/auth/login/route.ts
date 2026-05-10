@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { comparePassword, createToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 
+// Force dynamic rendering — this route sets cookies at request time
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();

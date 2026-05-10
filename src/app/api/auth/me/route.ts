@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// Force dynamic rendering — this route reads cookies at request time
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const session = await getSession();

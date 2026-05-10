@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { logEvent } from "@/lib/analytics";
 
+// Force dynamic rendering — this route reads cookies for session auth
+export const dynamic = "force-dynamic";
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
