@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String    @map("password_hash")
+  name          String?
+  mobileNumber  String?   @unique @map("mobile_number")
+  otpCode       String?   @map("otp_code")
+  otpExpiry     DateTime? @map("otp_expiry")
+  streak        Int       @default(1)
+  lastVisit     DateTime  @default(now()) @map("last_visit")
+  role          String    @default("user")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  documents      Document[]
+  collaborations Collaborator[]
+  adminAudits    AdminAudit[]        @relation("AdminUser")
+  versions       DocumentVersion[]   @relation("VersionCreator")
+  comments       Comment[]
+  analytics      Analytics[]
+
+  @@map("users")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  title       String   @default("Untitled Document")
+  emoji       String   @default("📄")
+  excerpt     String?
+  content     String   @default("")
+  starred     Boolean  @default(false)
+  shared      Boolean  @default(false)
+  inviteToken String?  @unique @map("invite_token")
+  ownerId     String   @map("owner_id")
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  updatedBy   String?  @map("updated_by")
+
+  collaborators   Collaborator[]
+  versions        DocumentVersion[]
+  comments        Comment[]
+  analyticsEvents Analytics[]
+
+  @@map("documents")
+}
+
+model Collaborator {
+  documentId String   @map("document_id")
+  userId     String   @map("user_id")
+  addedAt    DateTime @default(now()) @map("added_at")
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, userId])
+  @@map("collaborators")
+}
+
+model AdminAudit {
+  id          Int      @id @default(autoincrement())
+  adminId     String   @map("admin_id")
+  action      String
+  targetType  String   @map("target_type")
+  targetId    String?  @map("target_id")
+  performedAt DateTime @default(now()) @map("performed_at")
+  admin       User     @relation("AdminUser", fields: [adminId], references: [id])
+
+  @@map("admin_audit")
+}
+
+model DocumentVersion {
+  id          Int      @id @default(autoincrement())
+  documentId  String   @map("document_id")
+  versionNum  Int      @map("version_num")
+  content     String
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdBy   String?  @map("created_by")
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  creator     User?    @relation("VersionCreator", fields: [createdBy], references: [id])
+
+  @@map("document_versions")
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  documentId  String    @map("document_id")
+  userId      String    @map("user_id")
+  parentId    Int?      @map("parent_id")
+  content     String
+  resolved    Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  document    Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      Comment?  @relation("CommentThread", fields: [parentId], references: [id])
+  replies     Comment[] @relation("CommentThread")
+
+  @@map("comments")
+}
+
+model Analytics {
+  id          Int      @id @default(autoincrement())
+  userId      String   @map("user_id")
+  documentId  String?  @map("document_id")
+  eventName   String   @map("event_name")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User      @relation(fields: [userId], references: [id])
+  document    Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("analytics")
+}

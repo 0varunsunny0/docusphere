@@ -1,0 +1,50 @@
+/* Admin panel styling – premium dark glass‑morphism */
+.admin-panel {
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+  min-height: 100vh;
+  color: #e5e7eb;
+  padding: 2rem;
+}
+.admin-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  color: #f87171;
+}
+/* Gradient border for tables */
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 2px solid transparent;
+  border-image: linear-gradient(45deg, #6366f1, #06b6d4) 1;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+.admin-table th, .admin-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+.admin-table th {
+  background: rgba(31, 41, 55, 0.6);
+  font-weight: 600;
+}
+.admin-table tr:nth-child(even) {
+  background: rgba(31, 41, 55, 0.4);
+}
+.admin-button {
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.admin-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}

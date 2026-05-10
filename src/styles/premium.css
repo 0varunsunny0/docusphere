@@ -1,0 +1,90 @@
+/* src/styles/premium.css */
+:root {
+  --font-primary: 'Inter', sans-serif;
+  --font-editor: 'Geist', sans-serif;
+  --color-primary: #6366f1; /* indigo */
+  --color-accent: #06b6d4;  /* teal */
+  --color-bg: #0a0a0b;
+  --color-surface: rgba(13, 17, 23, 0.85);
+  --color-text: #e5e7eb;
+}
+
+body {
+  font-family: var(--font-primary);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Glass‑morphism panel */
+.premium-panel {
+  background: var(--color-surface);
+  backdrop-filter: blur(12px);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Gradient border utility */
+.gradient-border {
+  border: 2px solid transparent;
+  border-image: linear-gradient(45deg, var(--color-primary), var(--color-accent)) 1;
+  border-radius: 0.75rem;
+}
+
+/* Buttons */
+.premium-button {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.premium-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Ribbon */
+.ribbon {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+.ribbon-section {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ribbon-section:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Document Card */
+.document-card {
+  background: var(--color-surface);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.document-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+.document-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+}
+.document-card-meta {
+  font-size: 0.875rem;
+  color: #a1a1aa;
+}
