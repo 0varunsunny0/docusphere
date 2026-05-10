@@ -191,7 +191,7 @@ const Image = Node.create({
 // ============================================================================
 // 1. THE WORKSPACE COMPONENT (Only renders when Provider is 100% ready)
 // ============================================================================
-function EditorWorkspace({ params, ydoc, provider }: { params: { id: string }, ydoc: Y.Doc, provider: HocuspocusProvider }) {
+function EditorWorkspace({ params, ydoc, provider }: { params: { id: string }, ydoc: Y.Doc, provider: HocuspocusProvider | null }) {
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
@@ -298,10 +298,10 @@ function EditorWorkspace({ params, ydoc, provider }: { params: { id: string }, y
     extensions: [
       StarterKit.configure({ undoRedo: false, link: false }),
       Collaboration.configure({ document: ydoc }),
-      CollaborationCaret.configure({
+      ...(provider ? [CollaborationCaret.configure({
         provider: provider,
         user: { name: currentUser?.name || "Collaborator", color: userColor },
-      }),
+      })] : []),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Highlight.configure({ multicolor: true }),
       TextStyle,
@@ -357,15 +357,15 @@ function EditorWorkspace({ params, ydoc, provider }: { params: { id: string }, y
     },
   }, []);
 
-  // Update cursor name when user data loads
+  // Update cursor name when user data loads (only in collaborative mode)
   useEffect(() => {
-    if (editor && currentUser) {
+    if (editor && currentUser && provider) {
       editor.commands.updateUser({
         name: currentUser.name || "Collaborator",
         color: userColor,
       });
     }
-  }, [editor, currentUser, userColor]);
+  }, [editor, currentUser, userColor, provider]);
 
   // Menus and Formatting
   useEffect(() => {
@@ -952,43 +952,53 @@ function EditorWorkspace({ params, ydoc, provider }: { params: { id: string }, y
 }
 
 // ============================================================================
-// 2. THE WRAPPER COMPONENT (Guarantees connection is ready before editor loads)
+// 2. THE WRAPPER COMPONENT (Non-blocking — editor loads immediately from DB)
+// WebSocket (Hocuspocus) is attempted in background; falls back to offline mode
+// after 5 seconds so the editor is NEVER blocked by WebSocket availability.
 // ============================================================================
 export default function EditorPage({ params }: EditorPageProps) {
   const [ydoc] = useState(() => new Y.Doc());
   const [provider, setProvider] = useState<HocuspocusProvider | null>(null);
-  const [connected, setConnected] = useState(false);
+  // Start as true so we NEVER block on WebSocket — editor renders immediately
+  const [ready, setReady] = useState(true);
 
   useEffect(() => {
+    const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL;
+
+    // Only attempt WebSocket if a real URL is configured (not localhost fallback)
+    if (!wsUrl || wsUrl.includes("localhost")) {
+      console.info("[Editor] No WebSocket server configured — running in offline mode.");
+      return;
+    }
+
+    let destroyed = false;
+    // 5-second hard timeout — if WS hasn't connected, we still show the editor
+    const timeout = setTimeout(() => {
+      if (!destroyed) {
+        console.warn("[Editor] WebSocket timed out — continuing in offline mode.");
+      }
+    }, 5000);
+
     const p = new HocuspocusProvider({
-      url: process.env.NEXT_PUBLIC_WEBSOCKET_URL || "ws://localhost:1234",
+      url: wsUrl,
       name: params.id,
       document: ydoc,
-
       onStatus: ({ status }) => {
-        console.log("Status:", status);
         if (status === "connected") {
-          setConnected(true);
+          clearTimeout(timeout);
+          if (!destroyed) setProvider(p);
         }
       },
     });
 
-    setProvider(p);
-
     return () => {
+      destroyed = true;
+      clearTimeout(timeout);
       p.destroy();
     };
   }, [params.id, ydoc]);
 
-  if (!provider || !connected) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <p>Connecting to Document...</p>
-      </div>
-    );
-  }
-
-  return <EditorWorkspace params={params} ydoc={ydoc} provider={provider} />;
+  // Always render — provider may be null (offline mode) or a live WS instance
+  return <EditorWorkspace params={params} ydoc={ydoc} provider={provider as any} />;
 }
 
