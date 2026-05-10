@@ -39,6 +39,7 @@
   "exclude": [
     "node_modules",
     "prisma",
+    "prisma.config.ts",
     "sql",
     "test-*.ts",
     "websocket-server.js",
