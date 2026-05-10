@@ -37,6 +37,11 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "prisma",
+    "sql",
+    "test-*.ts",
+    "websocket-server.js",
+    "src/server"
   ]
 }
