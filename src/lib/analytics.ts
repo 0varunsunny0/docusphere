@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
 export type AnalyticsEvent =
   | "document.open"
@@ -28,7 +27,7 @@ export async function logEvent(
         userId,
         eventName,
         documentId: documentId || null,
-        metadata: metadata || Prisma.JsonNull,
+        metadata: metadata ?? null,
       },
     });
   } catch (error) {
