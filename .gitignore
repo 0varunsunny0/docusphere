@@ -41,14 +41,3 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
-
-# SQLite local database
-*.db
-*.db-journal
-*.db-shm
-*.db-wal
-
-# Build logs
-*.log
-build_output.log
-build_output.txt
